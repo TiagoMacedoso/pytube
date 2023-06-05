@@ -31,10 +31,13 @@ def playlist_download(link_input):
 
     if link_playlist.length == index:
         text_end["text"] = "Playlist: " + link_playlist.title + " baixada completamente!"
+        text_end.config(bg='green')
     elif link_playlist.length != index:
-        text_end["text"] = "Provavelmente alguma música não foi baixada."
+        text_end["text"] = "Provavelmente alguma música não foi baixada. Ou haviam músicas repetidas."
+        text_end.config(bg='red')
     else:
         text_end["text"] = "Ouve um erro, verifique os campos e tente novamente!"
+        text_end.config(bg='red')
 
 def music_download(link_input):
 
