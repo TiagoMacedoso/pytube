@@ -26,7 +26,7 @@ def playlist_download(link_input):
     index = 0
 
     for url_music in link_playlist.video_urls:
-        music_download(url_music)
+        music_download(url_music, index)
         index+=1
 
     if link_playlist.length == index:
@@ -39,7 +39,7 @@ def playlist_download(link_input):
         text_end["text"] = "Ouve um erro, verifique os campos e tente novamente!"
         text_end.config(bg='red')
 
-def music_download(link_input):
+def music_download(link_input, index):
 
     link_music = link_input
 
@@ -49,8 +49,8 @@ def music_download(link_input):
         old_path = youtube_var.streams.filter(only_audio=True, abr="128kbps", progressive=False, type="audio").get_audio_only().download()
         old_path_split = os.path.splitext(old_path)
         new_path = old_path_split[0]+'.mp3'
-        
-        convert_mp4_to_mp3(old_path, new_path)
+
+        convert_mp4_to_mp3(old_path, new_path, index)
 
         text_end["text"] = "Música: '" + youtube_var.title + "' baixada"
         text_end.config(bg='green')
@@ -66,12 +66,31 @@ def music_download(link_input):
             text_end.config(bg='red')
             link.delete(0, END)
 
-def convert_mp4_to_mp3(path_before, path_after):
+def convert_mp4_to_mp3(path_before, path_after, index):
     file_to_convert = AudioFileClip(path_before)
     file_to_convert.write_audiofile(path_after)
     file_to_convert.close()
     
     os.remove(path_before)
+
+    rename_by_index(path_after, index)
+
+def rename_by_index(old_path, index):
+    old_path_splitted = old_path.split('/')
+
+    num_path_end = len(old_path_splitted)-1
+
+    path_end = old_path_splitted[num_path_end]
+
+    path_aux = []
+
+    for i in range(num_path_end):
+        path_aux.append(old_path_splitted[i])
+
+    path_no_end = '/'.join(path_aux)
+    new_path = path_no_end + '/' + str(index) + '- ' + path_end
+
+    os.rename(old_path, new_path)
 
 def define_music(e):
     var_select.set("m")
