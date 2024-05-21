@@ -3,6 +3,7 @@ from pytube import Playlist
 from tkinter import *
 import os
 from moviepy.editor import *
+from pydub import AudioSegment
 
 def call_download():
     link_input = str(link.get())
@@ -46,14 +47,19 @@ def music_download(link_input):
     try:
         youtube_var = YouTube(link_music)
 
-        selected = var_select_mp3_or_mp4.get()
+        selected = var_select_file_type.get()
 
-        if selected == "mp3":
+        if selected == "mp3" or selected == "wav":
             old_path = youtube_var.streams.filter(only_audio=True, abr="128kbps", progressive=False, type="audio").get_audio_only().download()
             old_path_split = os.path.splitext(old_path)
             new_path = old_path_split[0]+'.mp3'
-            
+                
             convert_mp4_to_mp3(old_path, new_path)
+                
+            if selected == "wav":
+                new_path_wav = old_path_split[0]+'.wav'
+                convert_mp3_to_wav(new_path, new_path_wav)
+                
 
         elif selected == "mp4":
 
@@ -80,14 +86,21 @@ def music_download(link_input):
             text_end["text"] = "Insira uma URL válida"
             text_end.config(bg='#691212')
         else:
-            text_end["text"] = "Ocorreu um erro, verifique os campos e tente novamente!"
+            text_end["text"] = ValueError
             text_end.config(bg='red')
             link.delete(0, END)
+
+
 
 def convert_mp4_to_mp3(path_before, path_after):
     file_to_convert = AudioFileClip(path_before)
     file_to_convert.write_audiofile(path_after)
     file_to_convert.close()
+    
+    os.remove(path_before)
+
+def convert_mp3_to_wav(path_before, path_after):
+    AudioSegment.from_mp3(path_before).export(path_after, format="wav")
     
     os.remove(path_before)
 
@@ -121,41 +134,44 @@ select_music = Radiobutton(window, text="Música", font=("Arial", 12), variable=
 select_music.grid(column=0, row=1)
 
 select_playlist = Radiobutton(window, text="Playlist", font=("Arial", 12), variable=var_select_music_or_playlist, value="p")
-select_playlist.grid(column=0, row=2)
+select_playlist.grid(column=0, row=3)
 
-var_select_mp3_or_mp4 = StringVar()
-var_select_mp3_or_mp4.set("mp3")
+var_select_file_type = StringVar()
+var_select_file_type.set("mp3")
 
-select_mp3 = Radiobutton(window, text="Somente áudio (.mp3)", font=("Arial", 12), variable=var_select_mp3_or_mp4, value="mp3")
+select_mp3 = Radiobutton(window, text="Somente áudio (.mp3)", font=("Arial", 12), variable=var_select_file_type, value="mp3")
 select_mp3.grid(column=2, row=1)
 
-select_mp4 = Radiobutton(window, text="Áudio e Vídeo (.mp4)", font=("Arial", 12), variable=var_select_mp3_or_mp4, value="mp4")
-select_mp4.grid(column=2, row=2)
+select_wav = Radiobutton(window, text="Somente áudio (.wav)", font=("Arial", 12), variable=var_select_file_type, value="wav")
+select_wav.grid(column=2, row=2)
+
+select_mp4 = Radiobutton(window, text="Áudio e Vídeo (.mp4)", font=("Arial", 12), variable=var_select_file_type, value="mp4")
+select_mp4.grid(column=2, row=3)
 
 title_quality = Label(window, text="Selecione a qualidade do vídeo (somente para .mp4)", font=("Arial", 15), bg='#b8b8b8')
-title_quality.grid(column=0, row=3, columnspan=3, pady=10, padx=10)
+title_quality.grid(column=0, row=4, columnspan=3, pady=10, padx=10)
 
 var_select_quality = StringVar()
 var_select_quality.set("720p")
 
 select_360p = Radiobutton(window, text="360p (leve/ruim)", font=("Arial", 12), variable=var_select_quality, value="360p")
-select_360p.grid(column=0, row=4)
+select_360p.grid(column=0, row=5)
 
 select_720p = Radiobutton(window, text="720p (médio/bom)", font=("Arial", 12), variable=var_select_quality, value="720p")
-select_720p.grid(column=1, row=4)
+select_720p.grid(column=1, row=5)
 
 select_1080p = Radiobutton(window, text="1080p (pesado/ótimo)", font=("Arial", 12), variable=var_select_quality, value="1080p")
-select_1080p.grid(column=2, row=4)
+select_1080p.grid(column=2, row=5)
 
 title_link = Label(window, text="Insira o link:", font=("Arial", 15))
-title_link.grid(column=0, row=5, padx=10, sticky="w")
+title_link.grid(column=0, row=6, padx=10, sticky="w")
 
 link = Entry(window, font=("Arial", 15), width=55)
-link.grid(column=0, row=6, columnspan=3, padx=10)
+link.grid(column=0, row=7, columnspan=3, padx=10)
 link.focus_force()
 
 text_end = Label(window, font=("Arial", 13))
-text_end.grid(column=0, row=7, columnspan=2, pady=10)
+text_end.grid(column=0, row=8, columnspan=2, pady=10)
 
 window.bind('<m>', define_music)
 window.bind('<p>', define_playlist)
