@@ -1,0 +1,26 @@
+# Use uma imagem base do Python
+FROM python:3.9-slim
+
+# Atualiza o sistema e instala dependências necessárias
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Cria um diretório para o aplicativo
+WORKDIR /app
+
+# Definir um volume para persistência de dados
+VOLUME ["/app/downloads"]
+
+# Copia o conteúdo do seu projeto para o diretório do Docker
+COPY . /app
+
+# Instala as dependências do Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expor a porta que o Streamlit usará
+EXPOSE 8501
+
+# Comando para executar o aplicativo Streamlit
+CMD ["streamlit", "run", "seu_arquivo_streamlit.py"]

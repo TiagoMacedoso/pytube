@@ -1,2 +1,3 @@
-/build
+pytube-version/build
+pytube-version/download_youtube_music/download_youtube_music.pkg
 *.spec
